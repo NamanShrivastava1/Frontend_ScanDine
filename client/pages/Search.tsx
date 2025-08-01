@@ -14,7 +14,7 @@ export default function Search() {
     const fetchCafes = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:4000/api/dashboard/public-cafes",
+          "https://backend-7hhj.onrender.com/api/dashboard/public-cafes",
         );
         console.log("Fetched cafes:", response.data.cafes);
         setCafes(response.data.cafes);

@@ -205,7 +205,7 @@ export default function Dashboard() {
 
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/dashboard/menu",
+        "https://backend-7hhj.onrender.com/api/dashboard/menu",
         {
           dishName: formData.dishName,
           category: formData.category,
@@ -291,7 +291,7 @@ export default function Dashboard() {
 
       console.log(menuId);
       const response = await axios.put(
-        `http://localhost:4000/api/dashboard/menu/${selectedItem._id}`,
+        `https://backend-7hhj.onrender.com/api/dashboard/menu/${selectedItem._id}`,
         payload,
         {
           withCredentials: true,
@@ -384,7 +384,7 @@ export default function Dashboard() {
 
     try {
       const response = await axios.delete(
-        "http://localhost:4000/api/users/delete",
+        "https://backend-7hhj.onrender.com/api/users/delete",
         {
           withCredentials: true,
         },
@@ -412,7 +412,7 @@ export default function Dashboard() {
   };
 
   const signOutHandler = async () => {
-    const response = await axios.get("http://localhost:4000/api/users/logout", {
+    const response = await axios.get("https://backend-7hhj.onrender.com/api/users/logout", {
       withCredentials: true,
     });
 
@@ -425,7 +425,7 @@ export default function Dashboard() {
   useEffect(() => {
     const getUserProfile = async () => {
       const response = await axios.get(
-        "http://localhost:4000/api/users/dashboard/profile",
+        "https://backend-7hhj.onrender.com/api/users/dashboard/profile",
         {
           withCredentials: true,
         },
@@ -445,7 +445,7 @@ export default function Dashboard() {
     console.log("Sending cafe info:", cafeinfo);
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/dashboard/cafeinfo",
+        "https://backend-7hhj.onrender.com/api/dashboard/cafeinfo",
         cafeinfo,
         {
           headers: {
@@ -468,7 +468,7 @@ export default function Dashboard() {
   };
 
   const api = axios.create({
-    baseURL: "http://localhost:4000/api/dashboard",
+    baseURL: "https://backend-7hhj.onrender.com/api/dashboard",
     withCredentials: true, // This sends cookies automatically
     headers: {
       "Content-Type": "application/json",
@@ -506,7 +506,7 @@ export default function Dashboard() {
     const fetchCafe = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:4000/api/dashboard/showCafe",
+          "https://backend-7hhj.onrender.com/api/dashboard/showCafe",
           {
             withCredentials: true,
           },
@@ -534,7 +534,7 @@ export default function Dashboard() {
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
-        await axios.get("http://localhost:4000/api/users/me", {
+        await axios.get("https://backend-7hhj.onrender.com/api/users/me", {
           withCredentials: true,
         });
         setIsAuthenticated(true);

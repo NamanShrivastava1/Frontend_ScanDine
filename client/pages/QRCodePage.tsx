@@ -22,7 +22,7 @@ export default function QRCodePage() {
 
   useEffect(() => {
     axios
-      .get("/api/dashboard/generate-qr", { withCredentials: true })
+      .get("https://backend-7hhj.onrender.com/api/dashboard/generate-qr", { withCredentials: true })
       .then((res) => {
         setQrImage(res.data.qrCode); // This is the base64 image
       })

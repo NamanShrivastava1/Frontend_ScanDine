@@ -12,7 +12,6 @@ import { QrCode, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import { body } from "express-validator";
 import { response } from "express";
 import { set } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -75,7 +74,7 @@ export default function SignUp() {
 
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/users/register",
+        "https://backend-7hhj.onrender.com/api/users/register",
         formData,
         {
           headers: {

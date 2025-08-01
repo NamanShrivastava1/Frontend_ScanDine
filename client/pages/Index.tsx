@@ -31,7 +31,7 @@ export default function Index() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/users/me", {
+        const res = await axios.get("https://backend-7hhj.onrender.com/api/users/me", {
           withCredentials: true,
         });
         setIsLoggedIn(true);
@@ -46,7 +46,7 @@ export default function Index() {
   }, []);
 
   const signOutHandler = async () => {
-    const response = await axios.get("http://localhost:4000/api/users/logout", {
+    const response = await axios.get("https://backend-7hhj.onrender.com/api/users/logout", {
       withCredentials: true,
     });
 

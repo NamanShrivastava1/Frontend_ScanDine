@@ -42,9 +42,9 @@ export default function MenuDisplay() {
     const fetchCafeAndMenu = async () => {
       try {
         const [cafesRes, menuRes] = await Promise.all([
-          axios.get("http://localhost:4000/api/dashboard/public-cafes"),
+          axios.get("https://backend-7hhj.onrender.com/api/dashboard/public-cafes"),
           axios.get(
-            `http://localhost:4000/api/dashboard/public-menu/${cafeId}`,
+            `https://backend-7hhj.onrender.com/api/dashboard/public-menu/${cafeId}`,
           ),
         ]);
 
