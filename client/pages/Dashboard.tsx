@@ -982,7 +982,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-4">
                           <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
                             <img
-                              src={`http://localhost:4000/uploads/menu/${item.category}.jpg`}
+                              src={`https://backend-7hhj.onrender.com/uploads/menu/${item.category}.jpg`}
                               alt={item.dishName}
                               className="w-full h-full object-cover"
                             />
