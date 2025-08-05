@@ -33,6 +33,12 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.name || !formData.email || !formData.message) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -42,12 +48,12 @@ export default function Contact() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          access_key: "cfa01b0f-be8e-438e-82e6-3497e4122265",
+          access_key: "4209746b-7f06-43ce-bd33-143a6f44d7da",
           subject: "New Contact Message from ScanDine",
           name: formData.name,
           email: formData.email,
           message: formData.message,
-          botcheck: "", // Honeypot field
+          botcheck: "", // Honeypot
         }),
       });
 
@@ -55,7 +61,6 @@ export default function Contact() {
 
       if (result.success) {
         alert("Thank you for your message! We'll get back to you soon.");
-
         setFormData({ name: "", email: "", message: "" });
       } else {
         alert("Something went wrong. Please try again later.");
@@ -200,6 +205,12 @@ export default function Contact() {
                     </>
                   )}
                 </Button>
+                <input
+                  type="text"
+                  name="botcheck"
+                  style={{ display: "none" }}
+                  onChange={handleInputChange}
+                />
               </form>
             </CardContent>
           </Card>
