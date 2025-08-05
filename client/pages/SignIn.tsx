@@ -222,7 +222,7 @@ export default function SignIn() {
             {/* Sign Up Link */}
             <div className="text-center pt-4">
               <p className="text-sm text-muted-foreground">
-                New to MenuQR?{" "}
+                New to ScanDine?{" "}
                 <Link
                   to="/signup"
                   className="text-primary hover:text-primary/80 font-medium transition-colors"

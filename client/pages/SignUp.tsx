@@ -149,7 +149,7 @@ export default function SignUp() {
             Create an Account
           </CardTitle>
           <CardDescription className="text-lg text-muted-foreground">
-            Join MenuQR and start managing your menu digitally.
+            Join ScanDine and start managing your menu digitally.
           </CardDescription>
         </CardHeader>
 

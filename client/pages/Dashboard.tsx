@@ -412,9 +412,12 @@ export default function Dashboard() {
   };
 
   const signOutHandler = async () => {
-    const response = await axios.get("https://backend-7hhj.onrender.com/api/users/logout", {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      "https://backend-7hhj.onrender.com/api/users/logout",
+      {
+        withCredentials: true,
+      },
+    );
 
     navigate("/signin");
 
@@ -552,43 +555,44 @@ export default function Dashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-100 via-white to-red-50 p-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-cream via-background to-accent dark:from-background dark:via-muted dark:to-background px-6 text-center transition-colors">
+        {/* Wobbling Icon */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0, rotate: -5 }}
-          animate={{ scale: 1, opacity: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 100 }}
-          className="bg-white shadow-xl rounded-3xl p-10 max-w-lg w-full text-center"
+          animate={{ rotate: [0, -20, 20, -10, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 3 }}
+          className="mb-4"
         >
-          <motion.div
-            animate={{ rotate: [0, -20, 20, -10, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 3 }}
-            className="flex justify-center"
-          >
-            <Wrench className="text-red-500 w-14 h-14" />
-          </motion.div>
-          <h1 className="text-3xl font-bold text-gray-800 mt-4">
-            Oops, something broke!
-          </h1>
-          <p className="text-gray-600 mt-3">{error}</p>
+          <Wrench className="text-orange-500 w-16 h-16" />
+        </motion.div>
 
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="mt-6"
+        {/* Main Title */}
+        <h1 className="text-4xl font-bold text-foreground mb-2">
+          Oops, something broke!
+        </h1>
+
+        {/* Optional error message */}
+        <p className="text-muted-foreground mb-6">
+          {error || "An unexpected error occurred. Please try again later."}
+        </p>
+
+        {/* Action Buttons */}
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-wrap justify-center gap-3"
+        >
+          <Link
+            to="/"
+            className="px-6 py-2 bg-primary text-primary-foreground rounded-lg shadow hover:bg-primary/90 transition"
           >
-            <Link
-              to="/"
-              className="inline-block px-6 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition"
-            >
-              Take Me Home
-            </Link>
-            <Link
-              to="/signin"
-              className="inline-block px-6 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition ml-3"
-            >
-              Login
-            </Link>
-          </motion.div>
+            Take Me Home
+          </Link>
+          <Link
+            to="/signin"
+            className="px-6 py-2 bg-muted text-foreground rounded-lg border hover:bg-muted/80 transition"
+          >
+            Login
+          </Link>
         </motion.div>
       </div>
     );

@@ -226,7 +226,7 @@ export default function Contact() {
                       href="mailto:contact@menumate.in"
                       className="text-primary hover:text-primary/80 transition-colors"
                     >
-                      contact@menumate.in
+                      scandine.inquiry@gmail.com
                     </a>
                   </div>
                 </div>
@@ -241,7 +241,7 @@ export default function Contact() {
                       href="tel:+91XXXXXXXXXX"
                       className="text-fresh-600 hover:text-fresh-700 transition-colors"
                     >
-                      +91-XXXXXXXXXX
+                      +91-6262685831 / 8839040536
                     </a>
                   </div>
                 </div>

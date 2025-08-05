@@ -31,9 +31,12 @@ export default function Index() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("https://backend-7hhj.onrender.com/api/users/me", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          "https://backend-7hhj.onrender.com/api/users/me",
+          {
+            withCredentials: true,
+          },
+        );
         setIsLoggedIn(true);
       } catch (err) {
         setIsLoggedIn(false);
@@ -46,9 +49,12 @@ export default function Index() {
   }, []);
 
   const signOutHandler = async () => {
-    const response = await axios.get("https://backend-7hhj.onrender.com/api/users/logout", {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      "https://backend-7hhj.onrender.com/api/users/logout",
+      {
+        withCredentials: true,
+      },
+    );
 
     setIsLoggedIn(false);
     navigate("/signin");
@@ -265,8 +271,8 @@ export default function Index() {
             Ready to Go Digital?
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Join hundreds of cafés already using MenuQR to serve their customers
-            better.
+            Join hundreds of cafés already using ScanDine to serve their
+            customers better.
           </p>
           <Button
             asChild

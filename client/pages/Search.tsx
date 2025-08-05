@@ -9,6 +9,7 @@ import axios from "axios";
 export default function Search() {
   const [cafes, setCafes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const fetchCafes = async () => {
@@ -16,10 +17,11 @@ export default function Search() {
         const response = await axios.get(
           "https://backend-7hhj.onrender.com/api/dashboard/public-cafes",
         );
-        console.log("Fetched cafes:", response.data.cafes);
         setCafes(response.data.cafes);
       } catch (error) {
         console.error("Failed to fetch cafes", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -42,7 +44,6 @@ export default function Search() {
     return cafeImages[hash % cafeImages.length];
   }
 
-  // Filter cafes based on search query
   const filteredCafes = cafes.filter((cafe) =>
     (cafe.cafename + " " + cafe.address)
       .toLowerCase()
@@ -91,62 +92,87 @@ export default function Search() {
         </div>
       </section>
 
-      {/* Results Section */}
+      {/* Loader or Results */}
       <section className="container mx-auto px-4 pb-8">
-        <div className="grid gap-4 max-w-4xl mx-auto">
-          {filteredCafes.length === 0 ? (
-            <p className="text-center text-muted-foreground text-lg">
-              No cafés found.
-            </p>
-          ) : (
-            filteredCafes.map((cafe) => (
-              <Card
-                key={cafe._id}
-                className="border-none shadow-sm bg-card hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <CardContent className="p-0">
-                  <div className="flex gap-4 p-4">
-                    <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
-                      <img
-                        src={getImageForCafe(cafe._id)}
-                        alt={cafe.cafename}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <CardTitle className="text-lg">
-                          {cafe.cafename}
-                        </CardTitle>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span>Not Rated</span>
-                        </div>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            <svg
+              className="animate-spin h-8 w-8 mb-4 text-primary"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+            <p className="text-sm">Loading cafés...</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 max-w-4xl mx-auto">
+            {filteredCafes.length === 0 ? (
+              <p className="text-center text-muted-foreground text-lg">
+                No cafés found.
+              </p>
+            ) : (
+              filteredCafes.map((cafe) => (
+                <Card
+                  key={cafe._id}
+                  className="border-none shadow-sm bg-card hover:shadow-md transition-shadow cursor-pointer"
+                >
+                  <CardContent className="p-0">
+                    <div className="flex gap-4 p-4">
+                      <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
+                        <img
+                          src={getImageForCafe(cafe._id)}
+                          alt={cafe.cafename}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
-                      <div className="text-muted-foreground mb-3">
-                        {cafe.description && (
-                          <p className="text-sm mb-1">{cafe.description}</p>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
-                          <span className="text-sm">{cafe.address}</span>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-2">
+                          <CardTitle className="text-lg">
+                            {cafe.cafename}
+                          </CardTitle>
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            <span>Not Rated</span>
+                          </div>
                         </div>
+                        <div className="text-muted-foreground mb-3">
+                          {cafe.description && (
+                            <p className="text-sm mb-1">{cafe.description}</p>
+                          )}
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            <span className="text-sm">{cafe.address}</span>
+                          </div>
+                        </div>
+                        <Button
+                          asChild
+                          size="sm"
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
+                          <Link to={`/menu/${cafe._id}`}>View Menu</Link>
+                        </Button>
                       </div>
-
-                      <Button
-                        asChild
-                        size="sm"
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                      >
-                        <Link to={`/menu/${cafe._id}`}>View Menu</Link>
-                      </Button>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        )}
       </section>
     </div>
   );
