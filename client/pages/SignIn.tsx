@@ -125,7 +125,7 @@ export default function SignIn() {
             Welcome Back
           </CardTitle>
           <CardDescription className="text-lg text-muted-foreground">
-            Log in to continue using MenuQR.
+            Log in to continue using ScanDine.
           </CardDescription>
         </CardHeader>
 

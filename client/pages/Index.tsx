@@ -76,19 +76,24 @@ export default function Index() {
               ScanDine
             </span>
           </div>
-          <div className="hidden md:flex items-center gap-6">
-            <Link
-              to="/search"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Find Cafés
-            </Link>
-            <Link
-              to="/dashboard"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              For Owners
-            </Link>
+
+          {/* Right side buttons for all screen sizes */}
+          <div className="flex items-center gap-3">
+            {/* Desktop Links */}
+            <div className="hidden md:flex items-center gap-6">
+              <Link
+                to="/search"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Find Cafés
+              </Link>
+              <Link
+                to="/dashboard"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                For Owners
+              </Link>
+            </div>
 
             {/* Dark Mode Toggle */}
             <Button
@@ -107,20 +112,22 @@ export default function Index() {
               )}
             </Button>
 
-            {isCheckingAuth ? null : isLoggedIn ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={signOutHandler}
-                className="h-9 w-auto"
-              >
-                Sign Out
-              </Button>
-            ) : (
-              <Button asChild variant="outline" size="sm">
-                <Link to="/signin">Sign In</Link>
-              </Button>
-            )}
+            {/* Auth Buttons */}
+            {!isCheckingAuth &&
+              (isLoggedIn ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={signOutHandler}
+                  className="h-9 w-auto"
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/signin">Sign In</Link>
+                </Button>
+              ))}
           </div>
         </nav>
       </header>
