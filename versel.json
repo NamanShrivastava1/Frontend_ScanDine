@@ -1,9 +1,7 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
   "outputDirectory": "dist/spa",
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/.*", "dest": "/index.html" }
   ]
 }
