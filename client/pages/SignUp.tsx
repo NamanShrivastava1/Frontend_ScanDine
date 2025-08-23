@@ -86,10 +86,12 @@ export default function SignUp() {
 
       console.log(response.data);
 
-      const { userId } = response.data;
-      if (userId) {
-        localStorage.setItem("otpUserId", userId); // save temporarily
-        navigate("/verify-otp"); // navigate to OTP page
+      if (response.data.success) {
+        localStorage.setItem("otpUserId", response.data.userId); // ✅ Save userId here
+        alert("OTP sent! Please verify your email.");
+        navigate("/verify-otp");
+      } else {
+        alert(response.data.message);
       }
 
       setFormData({
