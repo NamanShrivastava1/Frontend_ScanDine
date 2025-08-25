@@ -197,17 +197,17 @@ export default function MenuDisplay() {
 
                           {/* 🔹 Badge logic fixed */}
                           {item.isAvailable ? (
-                            <span className="text-[10px] mt-2 inline-flex items-center gap-1 text-white bg-red-500 py-1 px-2 rounded-md">
-                              ❌ Currently Unavailable
-                            </span>
-                          ) : (
                             <span className="text-[10px] mt-2 inline-flex items-center gap-1 text-white bg-green-500 py-1 px-2 rounded-md">
                               ✅ Available
+                            </span>
+                          ) : (
+                            <span className="text-[10px] mt-2 inline-flex items-center gap-1 text-white bg-red-500 py-1 px-2 rounded-md">
+                              ❌ Currently Unavailable
                             </span>
                           )}
 
                           {item.isChefSpecial && (
-                            <span className="text-[10px] mt-2 inline-flex items-center gap-1 text-white bg-yellow-500 py-1 px-2 rounded-md">
+                            <span className="text-[10px] mt-2 ml-3 inline-flex items-center gap-1 text-white bg-yellow-500 py-1 px-2 rounded-md">
                               🍽️ Chef's Special
                             </span>
                           )}

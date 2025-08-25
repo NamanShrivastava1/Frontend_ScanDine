@@ -1026,14 +1026,16 @@ export default function Dashboard() {
                               checked={item.isAvailable}
                               onCheckedChange={async () => {
                                 try {
-                                  await axios.put(
+                                  const { data } = await axios.put(
                                     `https://backend-7hhj.onrender.com/api/dashboard/menu/${item._id}/toggle-availability`,
                                   );
-                                  // ✅ Update state locally
                                   setMenuItems((prev) =>
                                     prev.map((m) =>
                                       m._id === item._id
-                                        ? { ...m, isAvailable: !m.isAvailable }
+                                        ? {
+                                            ...m,
+                                            isAvailable: data.isAvailable,
+                                          }
                                         : m,
                                     ),
                                   );
@@ -1045,6 +1047,10 @@ export default function Dashboard() {
                                 }
                               }}
                             />
+                            <span className="text-sm">
+                              {item.isAvailable ? "Available" : "Unavailable"}
+                            </span>
+
                             <span className="text-sm">
                               {item.isAvailable ? "Available" : "Unavailable"}
                             </span>
