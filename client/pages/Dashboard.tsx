@@ -1050,10 +1050,6 @@ export default function Dashboard() {
                             <span className="text-sm">
                               {item.isAvailable ? "Available" : "Unavailable"}
                             </span>
-
-                            <span className="text-sm">
-                              {item.isAvailable ? "Available" : "Unavailable"}
-                            </span>
                           </div>
 
                           {/* ✅ Edit Button */}
