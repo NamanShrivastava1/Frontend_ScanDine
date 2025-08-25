@@ -992,8 +992,9 @@ export default function Dashboard() {
                 menuItems.map((item) => (
                   <Card key={item._id}>
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        {/* Item Info */}
+                        <div className="flex items-center gap-4 flex-1">
                           <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
                             <img
                               src={`https://backend-7hhj.onrender.com/uploads/menu/${item.category}.jpg`}
@@ -1016,7 +1017,40 @@ export default function Dashboard() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+
+                        {/* Actions (responsive) */}
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                          {/* ✅ Toggle Availability */}
+                          <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-card">
+                            <Switch
+                              checked={item.isAvailable}
+                              onCheckedChange={async () => {
+                                try {
+                                  await axios.put(
+                                    `https://backend-7hhj.onrender.com/api/dashboard/menu/${item._id}/toggle-availability`,
+                                  );
+                                  // ✅ Update state locally
+                                  setMenuItems((prev) =>
+                                    prev.map((m) =>
+                                      m._id === item._id
+                                        ? { ...m, isAvailable: !m.isAvailable }
+                                        : m,
+                                    ),
+                                  );
+                                } catch (err) {
+                                  console.error(
+                                    "Failed to toggle availability:",
+                                    err,
+                                  );
+                                }
+                              }}
+                            />
+                            <span className="text-sm">
+                              {item.isAvailable ? "Available" : "Unavailable"}
+                            </span>
+                          </div>
+
+                          {/* ✅ Edit Button */}
                           <Button
                             variant="outline"
                             size="sm"
@@ -1031,40 +1065,10 @@ export default function Dashboard() {
                               })
                             }
                           >
-                            <div className="flex items-center gap-2">
-                              <Switch
-                                checked={item.isAvailable}
-                                onCheckedChange={async () => {
-                                  try {
-                                    await axios.put(
-                                      `https://backend-7hhj.onrender.com/api/dashboard/menu/${item._id}/toggle-availability`,
-                                    );
-                                    // ✅ Update state locally
-                                    setMenuItems((prev) =>
-                                      prev.map((m) =>
-                                        m._id === item._id
-                                          ? {
-                                              ...m,
-                                              isAvailable: !m.isAvailable,
-                                            }
-                                          : m,
-                                      ),
-                                    );
-                                  } catch (err) {
-                                    console.error(
-                                      "Failed to toggle availability:",
-                                      err,
-                                    );
-                                  }
-                                }}
-                              />
-                              <span className="text-sm">
-                                {item.isAvailable ? "Available" : "Unavailable"}
-                              </span>
-                            </div>
-
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-4 h-4 mr-1" /> Edit
                           </Button>
+
+                          {/* ✅ Delete Button */}
                           <Button
                             variant="outline"
                             size="sm"
@@ -1078,7 +1082,7 @@ export default function Dashboard() {
                               })
                             }
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 mr-1" /> Delete
                           </Button>
                         </div>
                       </div>
