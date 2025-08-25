@@ -17,6 +17,7 @@ type MenuItem = {
   price: number;
   image?: string;
   isChefSpecial?: boolean;
+  isAvailable?: boolean;
 };
 
 type MenuCategory = {
@@ -42,7 +43,9 @@ export default function MenuDisplay() {
     const fetchCafeAndMenu = async () => {
       try {
         const [cafesRes, menuRes] = await Promise.all([
-          axios.get("https://backend-7hhj.onrender.com/api/dashboard/public-cafes"),
+          axios.get(
+            "https://backend-7hhj.onrender.com/api/dashboard/public-cafes",
+          ),
           axios.get(
             `https://backend-7hhj.onrender.com/api/dashboard/public-menu/${cafeId}`,
           ),
@@ -92,12 +95,14 @@ export default function MenuDisplay() {
     );
 
   // Filtered menu based on search input
-  const filteredCategories = menuCategories.map((category) => ({
-    ...category,
-    items: category.items.filter((item) =>
-      item.dishName.toLowerCase().includes(searchTerm.toLowerCase())
-    ),
-  })).filter((category) => category.items.length > 0);
+  const filteredCategories = menuCategories
+    .map((category) => ({
+      ...category,
+      items: category.items.filter((item) =>
+        item.dishName.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    }))
+    .filter((category) => category.items.length > 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -169,7 +174,11 @@ export default function MenuDisplay() {
                 {category.items.map((item) => (
                   <Card
                     key={item._id}
-                    className="border-none shadow-sm bg-card hover:shadow-md transition-shadow cursor-pointer"
+                    className={`border-none shadow-sm transition-shadow cursor-pointer ${
+                      item.isAvailable
+                        ? "bg-card hover:shadow-md"
+                        : "bg-muted opacity-60"
+                    }`}
                   >
                     <CardContent className="p-0">
                       <div className="flex gap-4 p-4">
@@ -185,6 +194,13 @@ export default function MenuDisplay() {
                           <CardDescription className="text-muted-foreground">
                             {item.description}
                           </CardDescription>
+
+                          {/* Availability + Chef Special */}
+                          {!item.isAvailable && (
+                            <span className="text-[10px] mt-2 inline-flex items-center gap-1 text-white bg-red-500 py-1 px-2 rounded-md">
+                              ❌ Currently Unavailable
+                            </span>
+                          )}
                           {item.isChefSpecial && (
                             <span className="text-[10px] mt-2 inline-flex items-center gap-1 text-white bg-yellow-500 py-1 px-2 rounded-md">
                               🍽️ Chef's Special
