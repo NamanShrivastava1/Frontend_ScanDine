@@ -14,7 +14,6 @@ type MenuItem = {
   _id: string;
   dishName: string;
   description: string;
-  price: number;
   image?: string;
   isChefSpecial?: boolean;
   isAvailable?: boolean;
@@ -173,6 +172,7 @@ export default function MenuDisplay() {
                 {category.category}
               </h2>
               <div className="grid gap-4">
+                // In your mapping of menu items
                 {category.items.map((item) => (
                   <Card
                     key={item._id}
@@ -190,12 +190,12 @@ export default function MenuDisplay() {
                               {item.dishName}
                             </CardTitle>
                             <div className="text-right">
-                              {item.halfPrice && (
+                              {item.halfPrice != null && (
                                 <p className="text-sm font-medium text-primary">
                                   Half: ₹{item.halfPrice}
                                 </p>
                               )}
-                              {item.fullPrice && (
+                              {item.fullPrice != null && (
                                 <p className="text-sm font-medium text-primary">
                                   Full: ₹{item.fullPrice}
                                 </p>
@@ -206,7 +206,7 @@ export default function MenuDisplay() {
                             {item.description}
                           </CardDescription>
 
-                          {/* 🔹 Badge logic fixed */}
+                          {/* Availability badge */}
                           {item.isAvailable ? (
                             <span className="text-[10px] mt-2 inline-flex items-center gap-1 text-white bg-red-500 py-1 px-2 rounded-md">
                               ❌ Currently Unavailable
@@ -224,7 +224,7 @@ export default function MenuDisplay() {
                           )}
                         </div>
 
-                        {/* Image stays the same */}
+                        {/* Image */}
                         <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
                           <img
                             src={`https://backend-7hhj.onrender.com/uploads/menu/${encodeURIComponent(category.category)}.jpg`}
