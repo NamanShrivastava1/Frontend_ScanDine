@@ -228,12 +228,10 @@ export default function Dashboard() {
         category: formData.category,
         description: formData.description,
         isChefSpecial: formData.isChefSpecial,
+        price: formData.fullPrice || formData.halfPrice, // send at least one as price
+        halfPrice: formData.halfPrice ? Number(formData.halfPrice) : undefined,
+        fullPrice: formData.fullPrice ? Number(formData.fullPrice) : undefined,
       };
-
-      if (formData.halfPrice !== undefined)
-        payload.halfPrice = Number(formData.halfPrice);
-      if (formData.fullPrice !== undefined)
-        payload.fullPrice = Number(formData.fullPrice);
 
       const response = await axios.post(
         "https://backend-7hhj.onrender.com/api/dashboard/menu",

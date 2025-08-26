@@ -172,7 +172,6 @@ export default function MenuDisplay() {
                 {category.category}
               </h2>
               <div className="grid gap-4">
-                // In your mapping of menu items
                 {category.items.map((item) => (
                   <Card
                     key={item._id}
