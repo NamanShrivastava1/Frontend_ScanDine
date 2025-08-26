@@ -71,15 +71,17 @@ export default function Dashboard() {
     dishName: "",
     category: "",
     description: "",
-    price: "",
     isChefSpecial: false,
+    halfPrice: "",
+    fullPrice: "",
   });
   const [editFormData, setEditFormData] = useState({
     dishName: "",
     category: "",
     description: "",
-    price: "",
     isChefSpecial: false,
+    halfPrice: "",
+    fullPrice: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -182,51 +184,70 @@ export default function Dashboard() {
       dishName: item.dishName,
       category: item.category,
       description: item.description,
-      price: item.price.toString(),
+      halfPrice: item.halfPrice || "",
+      fullPrice: item.fullPrice || "",
       isChefSpecial: item.isChefSpecial || false,
     });
     setErrors({});
     setIsEditModalOpen(true);
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Basic frontend validation
-    if (!formData.dishName || !formData.category || formData.price === "") {
+    if (!formData.dishName || !formData.category) {
       alert("Please fill all required fields.");
       return;
     }
 
-    const numericPrice = Number(formData.price);
-    if (isNaN(numericPrice)) {
-      alert("Price must be a valid number.");
+    // ✅ Validate half/full prices
+    if (!formData.halfPrice && !formData.fullPrice) {
+      alert("At least one price (Half or Full) is required.");
       return;
     }
 
+    if (formData.halfPrice) {
+      const numHalf = Number(formData.halfPrice);
+      if (isNaN(numHalf) || numHalf <= 0) {
+        alert("Half price must be a valid number.");
+        return;
+      }
+    }
+
+    if (formData.fullPrice) {
+      const numFull = Number(formData.fullPrice);
+      if (isNaN(numFull) || numFull <= 0) {
+        alert("Full price must be a valid number.");
+        return;
+      }
+    }
+
     try {
+      const payload: any = {
+        dishName: formData.dishName,
+        category: formData.category,
+        description: formData.description,
+        isChefSpecial: formData.isChefSpecial,
+      };
+
+      if (formData.halfPrice !== undefined)
+        payload.halfPrice = Number(formData.halfPrice);
+      if (formData.fullPrice !== undefined)
+        payload.fullPrice = Number(formData.fullPrice);
+
       const response = await axios.post(
         "https://backend-7hhj.onrender.com/api/dashboard/menu",
-        {
-          dishName: formData.dishName,
-          category: formData.category,
-          description: formData.description,
-          price: numericPrice,
-          isChefSpecial: formData.isChefSpecial,
-        },
-        {
-          withCredentials: true, // Important: includes cookies
-        },
+        payload,
+        { withCredentials: true },
       );
 
       fetchMenuItems();
       alert("Menu item added successfully!");
       setIsAddModalOpen(false);
-      // You can reset form or fetch menu again here
-    } catch (error) {
-      // Handle backend validation errors
+    } catch (error: any) {
       if (axios.isAxiosError(error) && error.response?.data?.errors) {
         const messages = error.response.data.errors
-          .map((e) => e.msg)
+          .map((e: any) => e.msg)
           .join("\n");
         alert("Validation failed:\n" + messages);
       } else if (axios.isAxiosError(error) && error.response?.data?.message) {
@@ -240,7 +261,6 @@ export default function Dashboard() {
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-
     const newErrors: Record<string, string> = {};
 
     // Validate form inputs
@@ -252,13 +272,30 @@ export default function Dashboard() {
       newErrors.category = "Category is required";
     }
 
-    if (!editFormData.price?.toString().trim()) {
-      newErrors.price = "Price is required";
-    } else if (
-      isNaN(Number(editFormData.price)) ||
-      Number(editFormData.price) <= 0
+    // ✅ Half/Full price validation
+    if (
+      (!editFormData.halfPrice && !editFormData.fullPrice) ||
+      (editFormData.halfPrice?.toString().trim() === "" &&
+        editFormData.fullPrice?.toString().trim() === "")
     ) {
-      newErrors.price = "Please enter a valid price";
+      newErrors.price = "At least one price (Half or Full) is required";
+    } else {
+      if (editFormData.halfPrice) {
+        if (
+          isNaN(Number(editFormData.halfPrice)) ||
+          Number(editFormData.halfPrice) <= 0
+        ) {
+          newErrors.halfPrice = "Please enter a valid half price";
+        }
+      }
+      if (editFormData.fullPrice) {
+        if (
+          isNaN(Number(editFormData.fullPrice)) ||
+          Number(editFormData.fullPrice) <= 0
+        ) {
+          newErrors.fullPrice = "Please enter a valid full price";
+        }
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -275,40 +312,35 @@ export default function Dashboard() {
     setIsSubmitting(true);
 
     try {
-      console.log("📤 Submitting Edit Form Data:", editFormData);
-
-      const payload = {
+      const payload: any = {
         dishName: editFormData.dishName,
         category: editFormData.category,
         description: editFormData.description,
-        price: Number(editFormData.price),
-        isChefSpecial: editFormData.isChefSpecial,
       };
+
+      // ✅ Add halfPrice/fullPrice if provided
+      if (editFormData.halfPrice !== undefined)
+        payload.halfPrice = Number(editFormData.halfPrice);
+      if (editFormData.fullPrice !== undefined)
+        payload.fullPrice = Number(editFormData.fullPrice);
 
       if (editFormData.isChefSpecial !== undefined) {
         payload.isChefSpecial = editFormData.isChefSpecial === true;
       }
 
-      console.log(menuId);
       const response = await axios.put(
-        `https://backend-7hhj.onrender.com/api/dashboard/menu/${selectedItem._id}`,
+        `https://backend-7hhj.onrender.com/api/dashboard/menu/${menuId}`,
         payload,
         {
           withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         },
       );
-      console.log("📤 Payload Sent to Backend:", payload);
+
       fetchMenuItems();
 
-      // ✅ Success response
       if (response.status === 200) {
         const updatedItem = response.data.menu;
-        console.log("✅ Updated Item from Backend:", updatedItem);
-
-        // ✅ Update UI
         setMenuItems((prevItems) =>
           prevItems.map((item) =>
             item._id === updatedItem._id ? updatedItem : item,
@@ -338,7 +370,8 @@ export default function Dashboard() {
       dishName: "",
       category: "",
       description: "",
-      price: "",
+      halfPrice: "",
+      fullPrice: "",
       isChefSpecial: false,
     });
     setErrors({});
@@ -815,6 +848,7 @@ export default function Dashboard() {
                   Add and manage your menu items
                 </p>
               </div>
+              {/* Add Item Modal */}
               <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
                 <DialogTrigger asChild>
                   <Button
@@ -921,32 +955,37 @@ export default function Dashboard() {
                       />
                     </div>
 
-                    {/* Price */}
+                    {/* Half & Full Price */}
                     <div className="space-y-2">
                       <Label htmlFor="price" className="text-sm font-medium">
                         Price *
                       </Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                          ₹
-                        </span>
-                        <Input
-                          id="price"
-                          name="price"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="0.00"
-                          value={formData.price}
-                          onChange={handleInputChange}
-                          className={`h-10 pl-8 ${errors.price ? "border-destructive" : ""}`}
-                        />
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                            ₹
+                          </span>
+                          <Input
+                            name="halfPrice"
+                            value={formData.halfPrice || ""}
+                            onChange={handleInputChange}
+                            placeholder="Half price"
+                            className={`h-10 pl-8 ${errors.halfPrice ? "border-destructive" : ""}`}
+                          />
+                        </div>
+                        <div className="relative flex-1">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                            ₹
+                          </span>
+                          <Input
+                            name="fullPrice"
+                            value={formData.fullPrice || ""}
+                            onChange={handleInputChange}
+                            placeholder="Full price"
+                            className={`h-10 pl-8 ${errors.fullPrice ? "border-destructive" : ""}`}
+                          />
+                        </div>
                       </div>
-                      {errors.price && (
-                        <p className="text-xs text-destructive">
-                          {errors.price}
-                        </p>
-                      )}
                     </div>
 
                     {/* Action Buttons */}
@@ -969,7 +1008,7 @@ export default function Dashboard() {
                       >
                         {isSubmitting ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />{" "}
                             Adding...
                           </>
                         ) : (
@@ -982,7 +1021,7 @@ export default function Dashboard() {
               </Dialog>
             </div>
 
-            {/* Sample Menu Items */}
+            {/* Menu Items List */}
             <div className="space-y-4">
               {menuItems.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
@@ -1012,15 +1051,19 @@ export default function Dashboard() {
                             <p className="text-sm text-muted-foreground">
                               {item.description || "No description available"}
                             </p>
+
+                            {/* Display Prices */}
                             <p className="font-semibold text-primary">
-                              ₹{item.price}
+                              {item.halfPrice && `Half: ₹${item.halfPrice}`}
+                              {item.halfPrice && item.fullPrice && " | "}
+                              {item.fullPrice && `Full: ₹${item.fullPrice}`}
                             </p>
                           </div>
                         </div>
 
-                        {/* Actions (responsive) */}
+                        {/* Actions */}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                          {/* ✅ Toggle Availability */}
+                          {/* Toggle Availability */}
                           <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-card">
                             <Switch
                               checked={item.isAvailable}
@@ -1052,37 +1095,20 @@ export default function Dashboard() {
                             </span>
                           </div>
 
-                          {/* ✅ Edit Button */}
+                          {/* Edit Button */}
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              openEditModal({
-                                _id: item._id,
-                                dishName: item.dishName,
-                                category: item.category,
-                                description: item.description,
-                                price: item.price,
-                                isChefSpecial: item.isChefSpecial,
-                              })
-                            }
+                            onClick={() => openEditModal(item)}
                           >
                             <Edit className="w-4 h-4 mr-1" /> Edit
                           </Button>
 
-                          {/* ✅ Delete Button */}
+                          {/* Delete Button */}
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              openDeleteModal({
-                                _id: item._id,
-                                dishName: item.dishName,
-                                category: item.category,
-                                description: item.description,
-                                price: item.price,
-                              })
-                            }
+                            onClick={() => openDeleteModal(item)}
                           >
                             <Trash2 className="w-4 h-4 mr-1" /> Delete
                           </Button>
@@ -1093,6 +1119,7 @@ export default function Dashboard() {
                 ))
               )}
             </div>
+
             {/* Edit Item Modal */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
               <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-card border-border shadow-lg transition-colors duration-300">
@@ -1108,36 +1135,20 @@ export default function Dashboard() {
                 <form onSubmit={handleEditSubmit} className="space-y-4 mt-4">
                   {/* Dish Name */}
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="editDishName"
-                      className="text-sm font-medium text-foreground"
-                    >
+                    <Label className="text-sm font-medium text-foreground">
                       Dish Name *
                     </Label>
                     <Input
-                      id="editDishName"
                       name="dishName"
-                      type="text"
-                      placeholder="e.g., Cappuccino, Caesar Salad"
                       value={editFormData.dishName || ""}
                       onChange={handleEditInputChange}
-                      className={`h-10 bg-background border-border text-foreground placeholder:text-muted-foreground transition-colors duration-300 hover:brightness-110 ${
-                        errors.dishName ? "border-destructive" : ""
-                      }`}
+                      className={`h-10 bg-background border-border text-foreground ${errors.dishName ? "border-destructive" : ""}`}
                     />
-                    {errors.dishName && (
-                      <p className="text-xs text-destructive">
-                        {errors.dishName}
-                      </p>
-                    )}
                   </div>
 
                   {/* Category */}
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="editCategory"
-                      className="text-sm font-medium text-foreground"
-                    >
+                    <Label className="text-sm font-medium text-foreground">
                       Category *
                     </Label>
                     <Select
@@ -1145,95 +1156,78 @@ export default function Dashboard() {
                       onValueChange={handleEditCategoryChange}
                     >
                       <SelectTrigger
-                        className={`h-10 bg-background border-border text-foreground transition-colors duration-300 hover:brightness-110 ${
-                          errors.category ? "border-destructive" : ""
-                        }`}
+                        className={`h-10 bg-background border-border text-foreground ${errors.category ? "border-destructive" : ""}`}
                       >
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                       <SelectContent className="bg-card border-border">
                         {categories.map((category) => (
-                          <SelectItem
-                            key={category}
-                            value={category}
-                            className="text-foreground hover:bg-accent hover:text-accent-foreground"
-                          >
+                          <SelectItem key={category} value={category}>
                             {category}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.category && (
-                      <p className="text-xs text-destructive">
-                        {errors.category}
-                      </p>
-                    )}
                   </div>
 
                   {/* Description */}
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="editDescription"
-                      className="text-sm font-medium text-foreground"
-                    >
+                    <Label className="text-sm font-medium text-foreground">
                       Description
                     </Label>
                     <Textarea
-                      id="editDescription"
                       name="description"
-                      placeholder="Describe your dish..."
                       value={editFormData.description || ""}
                       onChange={handleEditInputChange}
-                      className="min-h-[80px] resize-none bg-background border-border text-foreground placeholder:text-muted-foreground transition-colors duration-300 hover:brightness-110"
+                      className="min-h-[80px] resize-none bg-background border-border text-foreground"
                     />
                   </div>
 
-                  {/* Popular Toggle */}
-                  <div className="flex items-center justify-between space-x-2 p-3 bg-accent/30 rounded-lg border border-border transition-colors duration-300">
+                  {/* Chef Special Toggle */}
+                  <div className="flex items-center justify-between space-x-2 p-3 bg-accent/30 rounded-lg border border-border">
                     <div className="space-y-1">
                       <Label className="text-sm font-medium text-foreground">
                         🌟 Chef Special
                       </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Mark this item as popular or chef's recommendation
-                      </p>
                     </div>
                     <Switch
                       checked={editFormData.isChefSpecial}
                       onCheckedChange={handleEditChefSpecialToggle}
-                      className="data-[state=checked]:bg-coral transition-colors duration-300"
+                      className="data-[state=checked]:bg-coral"
                     />
                   </div>
 
-                  {/* Price */}
+                  {/* Half & Full Price */}
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="editPrice"
-                      className="text-sm font-medium text-foreground"
-                    >
+                    <Label className="text-sm font-medium text-foreground">
                       Price *
                     </Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                        ₹
-                      </span>
-                      <Input
-                        id="editPrice"
-                        name="price"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        value={editFormData.price || ""}
-                        onChange={handleEditInputChange}
-                        className={`h-10 pl-8 bg-background border-border text-foreground placeholder:text-muted-foreground transition-colors duration-300 hover:brightness-110 ${
-                          errors.price ? "border-destructive" : ""
-                        }`}
-                      />
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                          ₹
+                        </span>
+                        <Input
+                          name="halfPrice"
+                          value={editFormData.halfPrice || ""}
+                          onChange={handleEditInputChange}
+                          placeholder="Half price"
+                          className="h-10 pl-8"
+                        />
+                      </div>
+                      <div className="relative flex-1">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                          ₹
+                        </span>
+                        <Input
+                          name="fullPrice"
+                          value={editFormData.fullPrice || ""}
+                          onChange={handleEditInputChange}
+                          placeholder="Full price"
+                          className="h-10 pl-8"
+                        />
+                      </div>
                     </div>
-                    {errors.price && (
-                      <p className="text-xs text-destructive">{errors.price}</p>
-                    )}
                   </div>
 
                   {/* Action Buttons */}
@@ -1242,23 +1236,16 @@ export default function Dashboard() {
                       type="button"
                       variant="outline"
                       onClick={() => setIsEditModalOpen(false)}
-                      className="flex-1 border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-300 hover:brightness-110"
+                      className="flex-1"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-300 hover:brightness-110"
+                      className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                          Saving...
-                        </>
-                      ) : (
-                        "Save Changes"
-                      )}
+                      {isSubmitting ? "Saving..." : "Save Changes"}
                     </Button>
                   </div>
                 </form>
@@ -1276,30 +1263,24 @@ export default function Dashboard() {
                     Are you sure you want to delete this item?
                   </AlertDialogTitle>
                   <AlertDialogDescription className="text-base leading-relaxed text-muted-foreground">
-                    This action cannot be undone. The dish "{itemToDelete?.name}
-                    " will be permanently removed from your menu.
+                    This action cannot be undone. The dish "
+                    {itemToDelete?.dishName}" will be permanently removed from
+                    your menu.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="gap-3">
                   <AlertDialogCancel
-                    className="flex-1 border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
-                    disabled={isDeletingItem}
+                    onClick={() => setIsDeleteItemModalOpen(false)}
+                    className="flex-1 border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   >
                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteItem}
                     disabled={isDeletingItem}
-                    className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors duration-300 hover:brightness-110"
+                    className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >
-                    {isDeletingItem ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        Deleting...
-                      </>
-                    ) : (
-                      "Yes, Delete"
-                    )}
+                    {isDeletingItem ? "Deleting..." : "Yes, Delete"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

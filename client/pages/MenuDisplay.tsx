@@ -18,6 +18,8 @@ type MenuItem = {
   image?: string;
   isChefSpecial?: boolean;
   isAvailable?: boolean;
+  halfPrice?: number;
+  fullPrice?: number;
 };
 
 type MenuCategory = {
@@ -187,9 +189,18 @@ export default function MenuDisplay() {
                             <CardTitle className="text-lg">
                               {item.dishName}
                             </CardTitle>
-                            <span className="text-lg font-semibold text-primary">
-                              ₹{item.price.toFixed(2)}
-                            </span>
+                            <div className="text-right">
+                              {item.halfPrice && (
+                                <p className="text-sm font-medium text-primary">
+                                  Half: ₹{item.halfPrice}
+                                </p>
+                              )}
+                              {item.fullPrice && (
+                                <p className="text-sm font-medium text-primary">
+                                  Full: ₹{item.fullPrice}
+                                </p>
+                              )}
+                            </div>
                           </div>
                           <CardDescription className="text-muted-foreground">
                             {item.description}
