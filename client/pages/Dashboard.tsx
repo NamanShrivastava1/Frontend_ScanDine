@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -196,20 +197,20 @@ export default function Dashboard() {
 
     // Basic frontend validation
     if (!formData.dishName || !formData.category) {
-      alert("Please fill all required fields.");
+      toast.error("Please fill all required fields.");
       return;
     }
 
     // ✅ Validate half/full prices
     if (!formData.halfPrice && !formData.fullPrice) {
-      alert("At least one price (Half or Full) is required.");
+      toast.error("At least one price (Half or Full) is required.");
       return;
     }
 
     if (formData.halfPrice) {
       const numHalf = Number(formData.halfPrice);
       if (isNaN(numHalf) || numHalf <= 0) {
-        alert("Half price must be a valid number.");
+        toast.error("Half price must be a valid number.");
         return;
       }
     }
@@ -217,7 +218,7 @@ export default function Dashboard() {
     if (formData.fullPrice) {
       const numFull = Number(formData.fullPrice);
       if (isNaN(numFull) || numFull <= 0) {
-        alert("Full price must be a valid number.");
+        toast.error("Full price must be a valid number.");
         return;
       }
     }
@@ -240,18 +241,18 @@ export default function Dashboard() {
       );
 
       fetchMenuItems();
-      alert("Menu item added successfully!");
+      toast.success("Menu item added successfully!");
       setIsAddModalOpen(false);
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response?.data?.errors) {
         const messages = error.response.data.errors
           .map((e: any) => e.msg)
           .join("\n");
-        alert("Validation failed:\n" + messages);
+        toast.error("Validation failed:\n" + messages);
       } else if (axios.isAxiosError(error) && error.response?.data?.message) {
-        alert("Error: " + error.response.data.message);
+        toast.error("Error: " + error.response.data.message);
       } else {
-        alert("Something went wrong!");
+        toast.error("Something went wrong!");
       }
     }
   };
@@ -303,7 +304,7 @@ export default function Dashboard() {
 
     const menuId = selectedItem._id || selectedItem.id;
     if (!menuId) {
-      alert("⚠️ Menu item ID is missing. Cannot update.");
+      toast.error("Menu item ID is missing. Cannot update.");
       return;
     }
 
@@ -345,18 +346,18 @@ export default function Dashboard() {
           ),
         );
 
-        alert("✅ Menu item updated successfully!");
+        toast.success("Menu item updated successfully!");
         setIsEditModalOpen(false);
       } else {
-        alert("⚠️ Failed to update menu item. Please try again.");
+        toast.error("Failed to update menu item. Please try again.");
       }
     } catch (error: any) {
       console.error("❌ Error updating menu item:", error);
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.message || error.message;
-        alert(`⚠️ Update failed: ${errorMessage}`);
+        toast.error(`Update failed: ${errorMessage}`);
       } else {
-        alert("⚠️ An unexpected error occurred while updating the menu item");
+        toast.error("An unexpected error occurred while updating the menu item");
       }
     } finally {
       setIsSubmitting(false);
@@ -395,14 +396,14 @@ export default function Dashboard() {
         );
         setIsDeleteItemModalOpen(false);
         setItemToDelete(null);
-        alert(`"${itemToDelete.dishName}" has been deleted successfully!`);
+        toast.success(`"${itemToDelete.dishName}" has been deleted successfully!`);
       }
     } catch (error) {
       console.error("Error deleting menu item:", error);
       if (axios.isAxiosError(error)) {
-        alert(error.response?.data?.message || "Failed to delete menu item");
+        toast.error(error.response?.data?.message || "Failed to delete menu item");
       } else {
-        alert("An unexpected error occurred while deleting the menu item");
+        toast.error("An unexpected error occurred while deleting the menu item");
       }
     } finally {
       setIsDeletingItem(false);
@@ -422,14 +423,14 @@ export default function Dashboard() {
       );
 
       if (response.status === 200) {
-        alert("Your account has been deleted successfully!");
+        toast.success("Your account has been deleted successfully!");
         navigate("/");
       } else {
-        alert("Failed to delete account. Please try again.");
+        toast.error("Failed to delete account. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting account:", error);
-      alert("An error occurred while deleting your account. Please try again.");
+      toast.error("An error occurred while deleting your account. Please try again.");
     } finally {
       setIsDeletingAccount(false);
     }
@@ -452,7 +453,7 @@ export default function Dashboard() {
 
     navigate("/signin");
 
-    alert("You have been signed out successfully!");
+    toast.success("You have been signed out successfully!");
     console.log(response);
   };
 
@@ -489,7 +490,7 @@ export default function Dashboard() {
         },
       );
 
-      alert("Café information updated successfully!");
+      toast.success("Café information updated successfully!");
 
       // Optional: show success message or update UI
       console.log("Cafe added:", response.data);

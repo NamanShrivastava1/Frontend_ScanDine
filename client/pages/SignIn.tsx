@@ -12,6 +12,7 @@ import { QrCode, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -61,7 +62,7 @@ export default function SignIn() {
       );
 
       console.log(response.data);
-      alert("Welcome to ScanDine!");
+      toast.success("Welcome to ScanDine!");
 
       setFormData({ email: "", password: "" });
 

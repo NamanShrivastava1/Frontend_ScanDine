@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -35,7 +36,7 @@ export default function Contact() {
     e.preventDefault();
 
     if (!formData.name || !formData.email || !formData.message) {
-      alert("Please fill in all fields.");
+      toast.error("Please fill in all fields.");
       return;
     }
 
@@ -60,14 +61,14 @@ export default function Contact() {
       const result = await response.json();
 
       if (result.success) {
-        alert("Thank you for your message! We'll get back to you soon.");
+        toast.success("Thank you for your message! We'll get back to you soon.");
         setFormData({ name: "", email: "", message: "" });
       } else {
-        alert("Something went wrong. Please try again later.");
+        toast.error("Something went wrong. Please try again later.");
       }
     } catch (error) {
       console.error("Web3Forms error:", error);
-      alert("There was an error sending the form.");
+      toast.error("There was an error sending the form.");
     }
 
     setIsSubmitting(false);

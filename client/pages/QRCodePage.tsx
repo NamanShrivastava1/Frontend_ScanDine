@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/card";
 import { QrCode, ArrowLeft, Download, Printer, Moon, Sun } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { useDarkMode } from "@/hooks/use-dark-mode";
 import axios from "axios";
 
@@ -62,10 +63,10 @@ export default function QRCodePage() {
       setQrCodeGenerated(true);
       localStorage.setItem(`qr_generated_${cafeData.id}`, "true");
 
-      alert("QR Code generated successfully!");
+      toast.success("QR Code generated successfully!");
     } catch (error) {
       console.error("Error generating QR code:", error);
-      alert("Failed to generate QR code. Please try again.");
+      toast.error("Failed to generate QR code. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -75,7 +76,7 @@ export default function QRCodePage() {
   setIsDownloading(true);
   try {
     if (!qrImage) {
-      alert("❌ QR Code not available yet!");
+      toast.error("QR Code not available yet!");
       return;
     }
 
@@ -86,10 +87,10 @@ export default function QRCodePage() {
     link.click();
     document.body.removeChild(link);
 
-    alert("✅ QR Code downloaded as PNG successfully!");
+    toast.success("QR Code downloaded as PNG successfully!");
   } catch (error) {
     console.error("Error downloading PNG:", error);
-    alert("❌ Failed to download QR code. Please try again.");
+    toast.error("Failed to download QR code. Please try again.");
   } finally {
     setIsDownloading(false);
   }
@@ -101,7 +102,7 @@ export default function QRCodePage() {
 
   try {
     if (!qrImage) {
-      alert("❌ QR Code not available yet!");
+      toast.error("QR Code not available yet!");
       return;
     }
 
@@ -184,12 +185,12 @@ export default function QRCodePage() {
 
       // Show success message after a short delay
       setTimeout(() => {
-        alert("🖨️ Print dialog opened successfully!");
+        toast.success("Print dialog opened successfully!");
         setIsPrinting(false);
       }, 500);
     } catch (error) {
       console.error("Error printing:", error);
-      alert("❌ Failed to open print dialog. Please try again.");
+      toast.error("Failed to open print dialog. Please try again.");
       setIsPrinting(false);
     }
   };

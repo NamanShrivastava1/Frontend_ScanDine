@@ -12,6 +12,7 @@ import { QrCode, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { response } from "express";
 import { set } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -88,10 +89,10 @@ export default function SignUp() {
 
       if (response.data.success) {
         localStorage.setItem("otpUserId", response.data.userId); // ✅ Save userId here
-        alert("OTP sent! Please verify your email.");
+        toast.success("OTP sent! Please verify your email.");
         navigate("/verify-otp");
       } else {
-        alert(response.data.message);
+        toast.error(response.data.message);
       }
 
       setFormData({
@@ -111,7 +112,7 @@ export default function SignUp() {
         "Something went wrong during registration.";
 
       setErrors((prev) => ({ ...prev, backend: message }));
-      alert("An error occurred during registration. Please try again later.");
+      toast.error("An error occurred during registration. Please try again later.");
     } finally {
       // ✅ Always stop the spinner
       setIsSubmitting(false);

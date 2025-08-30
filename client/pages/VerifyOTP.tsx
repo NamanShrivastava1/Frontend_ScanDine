@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 
@@ -33,10 +34,16 @@ export default function VerifyOtp() {
 
   const handleVerify = async () => {
     const userId = localStorage.getItem("otpUserId");
-    if (!userId) return alert("No user ID found");
+    if (!userId) {
+      toast.error("No user ID found");
+      return;
+    }
 
     const enteredOtp = otp.join("");
-    if (enteredOtp.length < 6) return alert("Please enter full OTP");
+    if (enteredOtp.length < 6) {
+      toast.error("Please enter full OTP");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -44,12 +51,12 @@ export default function VerifyOtp() {
         "https://backend-7hhj.onrender.com/api/users/verify-otp",
         { userId, otp: enteredOtp },
       );
-      alert(res.data.message);
+      toast.success(res.data.message);
       localStorage.removeItem("otpUserId");
       setStatus("success");
       setTimeout(() => navigate("/signin"), 1500);
     } catch (err: any) {
-      alert(err.response?.data?.message || "OTP verification failed");
+      toast.error(err.response?.data?.message || "OTP verification failed");
       setStatus("error");
     } finally {
       setIsSubmitting(false);
@@ -58,14 +65,17 @@ export default function VerifyOtp() {
 
   const handleResend = async () => {
     const userId = localStorage.getItem("otpUserId");
-    if (!userId) return alert("No user ID found");
+    if (!userId) {
+      toast.error("No user ID found");
+      return;
+    }
 
     try {
       await axios.post(
         "https://backend-7hhj.onrender.com/api/users/resend-otp",
         { userId },
       );
-      alert("A new OTP has been sent to your email!");
+      toast.success("A new OTP has been sent to your email!");
       setOtp(Array(6).fill(""));
       inputRefs.current[0]?.focus();
       setStatus("idle");

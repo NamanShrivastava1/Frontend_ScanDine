@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
 import {
   Card,
   CardContent,
@@ -59,7 +60,7 @@ export default function Index() {
     setIsLoggedIn(false);
     navigate("/signin");
 
-    alert("You have been signed out successfully!");
+    toast.success("You have been signed out successfully!");
     console.log(response);
   };
 
