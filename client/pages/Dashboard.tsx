@@ -234,8 +234,8 @@ export default function Dashboard() {
         category: formData.category,
         description: formData.description,
         isChefSpecial: formData.isChefSpecial,
-        halfPrice: formData.halfPrice ? Number(formData.halfPrice) : undefined,
-        fullPrice: formData.fullPrice ? Number(formData.fullPrice) : undefined,
+        halfPrice: formData.halfPrice ? formData.halfPrice : undefined,
+        fullPrice: formData.fullPrice ? formData.fullPrice : undefined,
       };
 
       const response = await api.post("/menu/", payload);
