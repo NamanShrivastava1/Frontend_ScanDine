@@ -234,6 +234,7 @@ export default function Dashboard() {
         category: formData.category,
         description: formData.description,
         isChefSpecial: formData.isChefSpecial,
+        price: Number(formData.fullPrice || formData.halfPrice),
         halfPrice: formData.halfPrice ? formData.halfPrice : undefined,
         fullPrice: formData.fullPrice ? formData.fullPrice : undefined,
       };
