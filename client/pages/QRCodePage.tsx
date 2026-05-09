@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useDarkMode } from "@/hooks/use-dark-mode";
 import axios from "axios";
+import api from "@/lib/api";
 
 export default function QRCodePage() {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -22,8 +23,8 @@ export default function QRCodePage() {
   const [qrImage, setQrImage] = useState("");
 
   useEffect(() => {
-    axios
-      .get("https://backend-7hhj.onrender.com/api/dashboard/generate-qr", { withCredentials: true })
+    api
+      .get("/cafe/generate-qr")
       .then((res) => {
         setQrImage(res.data.qrCode); // This is the base64 image
       })
@@ -123,10 +124,10 @@ export default function QRCodePage() {
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
 
-    alert("✅ QR Code downloaded as SVG successfully!");
+    toast.success("QR Code downloaded as SVG successfully!");
   } catch (error) {
     console.error("Error downloading SVG:", error);
-    alert("❌ Failed to download QR code. Please try again.");
+    toast.error("Failed to download QR code. Please try again.");
   } finally {
     setIsDownloading(false);
   }

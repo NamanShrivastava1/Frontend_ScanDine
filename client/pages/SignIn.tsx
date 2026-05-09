@@ -12,6 +12,7 @@ import { QrCode, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import api from "@/lib/api";
 import toast from "react-hot-toast";
 
 export default function SignIn() {
@@ -29,7 +30,7 @@ export default function SignIn() {
     e.preventDefault();
     setErrors({});
 
-    // ✅ Basic validation before request
+    // Basic validation before request
     const newErrors: Record<string, string> = {};
 
     if (!formData.email.trim()) {
@@ -50,16 +51,7 @@ export default function SignIn() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(
-        "https://backend-7hhj.onrender.com/api/users/login",
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        },
-      );
+      const response = await api.post("/users/login", formData);
 
       console.log(response.data);
       toast.success("Welcome to ScanDine!");

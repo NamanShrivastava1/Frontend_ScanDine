@@ -62,7 +62,7 @@ export default function About() {
       <section className="container mx-auto px-4 py-16 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-            🚀About Us
+            About Us
           </h1>
           <h2 className="text-2xl md:text-3xl font-semibold text-primary mb-8">
             Turning Local Cafés Digital—One QR at a Time.
@@ -80,7 +80,7 @@ export default function About() {
       <section className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            👨‍💻 Meet the Founders
+            Meet the Founders
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Two passionate developers bringing their vision to life with
@@ -224,7 +224,7 @@ export default function About() {
             <div className="grid md:grid-cols-3 gap-6">
               <Card className="border-none shadow-sm bg-card/50">
                 <CardHeader>
-                  <CardTitle className="text-lg">🎯 Simple</CardTitle>
+                  <CardTitle className="text-lg">Simple</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
@@ -235,7 +235,7 @@ export default function About() {
               </Card>
               <Card className="border-none shadow-sm bg-card/50">
                 <CardHeader>
-                  <CardTitle className="text-lg">💡 Smart</CardTitle>
+                  <CardTitle className="text-lg">Smart</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
@@ -245,7 +245,7 @@ export default function About() {
               </Card>
               <Card className="border-none shadow-sm bg-card/50">
                 <CardHeader>
-                  <CardTitle className="text-lg">❤️ Personal</CardTitle>
+                  <CardTitle className="text-lg">Personal</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>

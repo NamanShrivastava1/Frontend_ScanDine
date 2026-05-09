@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
+import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 
 export default function VerifyOtp() {
@@ -47,10 +48,7 @@ export default function VerifyOtp() {
 
     setIsSubmitting(true);
     try {
-      const res = await axios.post(
-        "https://backend-7hhj.onrender.com/api/users/verify-otp",
-        { userId, otp: enteredOtp },
-      );
+      const res = await api.post("/users/verify-otp", { userId, otp: enteredOtp });
       toast.success(res.data.message);
       localStorage.removeItem("otpUserId");
       setStatus("success");
@@ -63,25 +61,8 @@ export default function VerifyOtp() {
     }
   };
 
-  const handleResend = async () => {
-    const userId = localStorage.getItem("otpUserId");
-    if (!userId) {
-      toast.error("No user ID found");
-      return;
-    }
-
-    try {
-      await axios.post(
-        "https://backend-7hhj.onrender.com/api/users/resend-otp",
-        { userId },
-      );
-      toast.success("A new OTP has been sent to your email!");
-      setOtp(Array(6).fill(""));
-      inputRefs.current[0]?.focus();
-      setStatus("idle");
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to resend OTP");
-    }
+  const handleResend = () => {
+    toast.error("Resend OTP is not available yet. Please register again if your OTP expired.");
   };
 
   return (

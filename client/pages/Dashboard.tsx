@@ -56,6 +56,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDarkMode } from "@/hooks/use-dark-mode";
 import axios from "axios";
+import api from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -113,7 +114,7 @@ export default function Dashboard() {
   const categories = [
     "Starters",
     "Main Course",
-    "Desserts",
+    "Dessert",
     "Drinks",
     "Snacks",
     "Breakfast",
@@ -126,16 +127,20 @@ export default function Dashboard() {
     phoneNo: string;
     address: string;
     description: string;
-    logo: string;
+    image: string;
   }
 
-  const [cafeinfo, setCafeinfo] = useState<CafeInfo>({
+    const [cafeinfo, setCafeinfo] = useState<CafeInfo>({
     cafename: "Café Central",
     phoneNo: "5551234567",
     address: "123 Main Street, Anytown",
     description: "Artisanal coffee and fresh pastries in the heart of downtown",
-    logo: "",
+    image: "",
   });
+
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [menuImages, setMenuImages] = useState<File[]>([]);
+  const [editMenuImages, setEditMenuImages] = useState<File[]>([]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -201,7 +206,7 @@ export default function Dashboard() {
       return;
     }
 
-    // ✅ Validate half/full prices
+    // Validate half/full prices
     if (!formData.halfPrice && !formData.fullPrice) {
       toast.error("At least one price (Half or Full) is required.");
       return;
@@ -229,16 +234,31 @@ export default function Dashboard() {
         category: formData.category,
         description: formData.description,
         isChefSpecial: formData.isChefSpecial,
-        price: formData.fullPrice || formData.halfPrice, // send at least one as price
         halfPrice: formData.halfPrice ? Number(formData.halfPrice) : undefined,
         fullPrice: formData.fullPrice ? Number(formData.fullPrice) : undefined,
       };
 
-      const response = await axios.post(
-        "https://backend-7hhj.onrender.com/api/dashboard/menu",
-        payload,
-        { withCredentials: true },
-      );
+      const response = await api.post("/menu/", payload);
+      const newItemId = response.data.menu?._id;
+
+      // Upload images separately if any were selected
+      if (newItemId && menuImages.length > 0) {
+        if (menuImages.length > 5) {
+          toast.error("Maximum 5 images allowed.");
+        } else {
+          for (const file of menuImages) {
+            if (file.size > 5 * 1024 * 1024) {
+              toast.error(`Image ${file.name} exceeds 5MB`);
+              break;
+            }
+          }
+          const imgForm = new FormData();
+          menuImages.forEach(file => imgForm.append("images", file));
+          await api.post(`/menu/upload-images/${newItemId}`, imgForm, {
+            headers: { "Content-Type": "multipart/form-data" }
+          });
+        }
+      }
 
       fetchMenuItems();
       toast.success("Menu item added successfully!");
@@ -271,7 +291,7 @@ export default function Dashboard() {
       newErrors.category = "Category is required";
     }
 
-    // ✅ Half/Full price validation
+    // Half/Full price validation
     if (
       (!editFormData.halfPrice && !editFormData.fullPrice) ||
       (editFormData.halfPrice?.toString().trim() === "" &&
@@ -316,25 +336,24 @@ export default function Dashboard() {
         category: editFormData.category,
         description: editFormData.description,
       };
+      if (editFormData.halfPrice !== undefined) payload.halfPrice = Number(editFormData.halfPrice);
+      if (editFormData.fullPrice !== undefined) payload.fullPrice = Number(editFormData.fullPrice);
+      if (editFormData.isChefSpecial !== undefined) payload.isChefSpecial = editFormData.isChefSpecial === true;
 
-      // ✅ Add halfPrice/fullPrice if provided
-      if (editFormData.halfPrice !== undefined)
-        payload.halfPrice = Number(editFormData.halfPrice);
-      if (editFormData.fullPrice !== undefined)
-        payload.fullPrice = Number(editFormData.fullPrice);
+      const response = await api.put(`/menu/${menuId}`, payload);
 
-      if (editFormData.isChefSpecial !== undefined) {
-        payload.isChefSpecial = editFormData.isChefSpecial === true;
+      // Upload images separately if any were selected
+      if (editMenuImages.length > 0) {
+        if (editMenuImages.length > 5) {
+          toast.error("Maximum 5 images allowed.");
+        } else {
+          const imgForm = new FormData();
+          editMenuImages.forEach(file => imgForm.append("images", file));
+          await api.post(`/menu/upload-images/${menuId}`, imgForm, {
+            headers: { "Content-Type": "multipart/form-data" }
+          });
+        }
       }
-
-      const response = await axios.put(
-        `https://backend-7hhj.onrender.com/api/dashboard/menu/${menuId}`,
-        payload,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
 
       fetchMenuItems();
 
@@ -352,7 +371,7 @@ export default function Dashboard() {
         toast.error("Failed to update menu item. Please try again.");
       }
     } catch (error: any) {
-      console.error("❌ Error updating menu item:", error);
+      console.error("Error updating menu item:", error);
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.message || error.message;
         toast.error(`Update failed: ${errorMessage}`);
@@ -415,12 +434,7 @@ export default function Dashboard() {
     setIsDeletingAccount(true);
 
     try {
-      const response = await axios.delete(
-        "https://backend-7hhj.onrender.com/api/users/delete",
-        {
-          withCredentials: true,
-        },
-      );
+      const response = await api.delete("/users/delete");
 
       if (response.status === 200) {
         toast.success("Your account has been deleted successfully!");
@@ -444,12 +458,7 @@ export default function Dashboard() {
   };
 
   const signOutHandler = async () => {
-    const response = await axios.get(
-      "https://backend-7hhj.onrender.com/api/users/logout",
-      {
-        withCredentials: true,
-      },
-    );
+    const response = await api.get("/users/logout");
 
     navigate("/signin");
 
@@ -459,12 +468,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const getUserProfile = async () => {
-      const response = await axios.get(
-        "https://backend-7hhj.onrender.com/api/users/dashboard/profile",
-        {
-          withCredentials: true,
-        },
-      );
+      const response = await api.get("/users/dashboard/profile");
       setProfileData({
         fullname: response.data.user.fullname,
         email: response.data.user.email,
@@ -477,38 +481,37 @@ export default function Dashboard() {
   }, []);
 
   const cafeInfoHandler = async () => {
-    console.log("Sending cafe info:", cafeinfo);
     try {
-      const response = await axios.post(
-        "https://backend-7hhj.onrender.com/api/dashboard/cafeinfo",
-        cafeinfo,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true, // ✅ REQUIRED for sending cookies
-        },
-      );
+      const cafePayload = {
+        cafename: cafeinfo.cafename,
+        phoneNo: cafeinfo.phoneNo,
+        address: cafeinfo.address,
+        description: cafeinfo.description,
+      };
 
-      toast.success("Café information updated successfully!");
+      await api.post("/cafe/createCafe", cafePayload);
 
-      // Optional: show success message or update UI
-      console.log("Cafe added:", response.data);
-    } catch (error) {
-      console.error(
-        "Error adding cafe:",
-        error.response?.data || error.message,
-      );
+      // Upload image separately if selected
+      if (logoFile) {
+        if (logoFile.size > 5 * 1024 * 1024) {
+          toast.error("Image must be smaller than 5MB");
+          return;
+        }
+        const imgForm = new FormData();
+        imgForm.append("image", logoFile);
+        await api.post("/cafe/upload-image", imgForm, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+      }
+
+      toast.success("Cafe information saved successfully!");
+    } catch (error: any) {
+      console.error("Error saving cafe:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Failed to save cafe information");
     }
   };
 
-  const api = axios.create({
-    baseURL: "https://backend-7hhj.onrender.com/api/dashboard",
-    withCredentials: true, // This sends cookies automatically
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  
 
   useEffect(() => {
     fetchMenuItems();
@@ -519,7 +522,7 @@ export default function Dashboard() {
       setLoading(true);
 
       // Only fetch menu items, no cafe data needed
-      const menuResponse = await api.get("/my-menu");
+      const menuResponse = await api.get("/menu/my-menu");
       setMenuItems(menuResponse.data.menuItems || []);
       console.log(menuResponse.data.menuItems);
     } catch (error) {
@@ -540,14 +543,9 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchCafe = async () => {
       try {
-        const res = await axios.get(
-          "https://backend-7hhj.onrender.com/api/dashboard/showCafe",
-          {
-            withCredentials: true,
-          },
-        );
+        const res = await api.get("/cafe/showCafe");
 
-        const { cafename, phoneNo, address, description, logo } = res.data.cafe;
+        const { cafename, phoneNo, address, description, image } = res.data.cafe;
 
         setCafeinfo({
           cafename: cafename || "Cafe Placeholder",
@@ -555,7 +553,7 @@ export default function Dashboard() {
           address: address || "123 Main Street, Ujjain",
           description:
             description || "A cozy spot for great coffee and snacks.",
-          logo: logo || "",
+          image: image || "",
         });
       } catch (err) {
         console.error("Error fetching cafe data:", err.message);
@@ -569,16 +567,14 @@ export default function Dashboard() {
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
-        await axios.get("https://backend-7hhj.onrender.com/api/users/me", {
-          withCredentials: true,
-        });
+        await api.get("/users/me");
         setIsAuthenticated(true);
       } catch (error: any) {
         if (error.response?.status === 401) {
           setError("Your session has expired. Please log in again.");
           setTimeout(() => navigate("/signin"), 4000);
         } else if (error.response?.status === 403) {
-          // 🔑 User not verified
+          // User not verified
           setError("Please verify your email before accessing the dashboard.");
           setTimeout(() => navigate("/verify-otp"), 4000);
         } else {
@@ -803,18 +799,33 @@ export default function Dashboard() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="cafe-logo">Logo Upload</Label>
+                  <Label htmlFor="cafe-logo">Logo Upload (Max 5MB)</Label>
                   <div className="flex items-center gap-4 mt-2">
-                    <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center">
-                      <Coffee className="w-8 h-8 text-primary-foreground" />
+                    <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                      {logoFile ? (
+                        <img src={URL.createObjectURL(logoFile)} alt="Preview" className="w-full h-full object-cover" />
+                      ) : cafeinfo.image ? (
+                        <img src={cafeinfo.image} alt="Current Image" className="w-full h-full object-cover" />
+                      ) : (
+                        <Coffee className="w-8 h-8 text-primary-foreground" />
+                      )}
                     </div>
-                    <Button
-                      variant="outline"
-                      className="flex items-center gap-2"
-                    >
-                      <Upload className="w-4 h-4" />
-                      Change Logo
-                    </Button>
+                    <div className="flex-1 max-w-xs">
+                      <Input
+                        id="cafe-logo"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            if (e.target.files[0].size > 5 * 1024 * 1024) {
+                              toast.error("Image must be smaller than 5MB");
+                              return;
+                            }
+                            setLogoFile(e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -941,7 +952,7 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between space-x-2 p-3 bg-accent/30 rounded-lg">
                       <div className="space-y-1">
                         <Label className="text-sm font-medium">
-                          🌟 Chef Special
+                          Chef Special
                         </Label>
                         <p className="text-xs text-muted-foreground">
                           Mark this item as chef's special recommendation
@@ -985,6 +996,27 @@ export default function Dashboard() {
                           />
                         </div>
                       </div>
+                    </div>
+
+                    {/* Images Upload */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Images (Max 5, up to 5MB each)</Label>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => {
+                           if (e.target.files) {
+                              const filesArray = Array.from(e.target.files);
+                              if (filesArray.length > 5) {
+                                toast.error("Maximum 5 images allowed");
+                                return;
+                              }
+                              setMenuImages(filesArray);
+                           }
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">Selected images will replace existing ones if uploading new.</p>
                     </div>
 
                     {/* Action Buttons */}
@@ -1033,12 +1065,16 @@ export default function Dashboard() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         {/* Item Info */}
                         <div className="flex items-center gap-4 flex-1">
-                          <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
-                            <img
-                              src={`https://backend-7hhj.onrender.com/uploads/menu/${item.category}.jpg`}
-                              alt={item.dishName}
-                              className="w-full h-full object-cover"
-                            />
+                          <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
+                            {item.images && item.images.length > 0 ? (
+                              <img
+                                src={item.images[0].url}
+                                alt={item.dishName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-xs text-muted-foreground">No image</span>
+                            )}
                           </div>
                           <div>
                             <h3 className="font-semibold">{item.dishName}</h3>
@@ -1068,9 +1104,7 @@ export default function Dashboard() {
                               checked={item.isAvailable}
                               onCheckedChange={async () => {
                                 try {
-                                  const { data } = await axios.put(
-                                    `https://backend-7hhj.onrender.com/api/dashboard/menu/${item._id}/toggle-availability`,
-                                  );
+                                  const { data } = await api.put(`/menu/availability/${item._id}`);
                                   setMenuItems((prev) =>
                                     prev.map((m) =>
                                       m._id === item._id
@@ -1186,7 +1220,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between space-x-2 p-3 bg-accent/30 rounded-lg border border-border">
                     <div className="space-y-1">
                       <Label className="text-sm font-medium text-foreground">
-                        🌟 Chef Special
+                        Chef Special
                       </Label>
                     </div>
                     <Switch
@@ -1357,7 +1391,7 @@ export default function Dashboard() {
               <Card className="w-full max-w-md border-none shadow-lg bg-card/70 backdrop-blur-sm">
                 <CardHeader className="text-center">
                   <CardTitle className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
-                    👤 Your Profile
+                    Your Profile
                   </CardTitle>
                   <CardDescription>Your account information</CardDescription>
                 </CardHeader>
@@ -1429,7 +1463,7 @@ export default function Dashboard() {
                           className="w-full justify-center text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20 hover:border-destructive/30"
                           onClick={() => setIsDeleteModalOpen(true)}
                         >
-                          🗑️ Delete Account
+                          Delete Account
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent className="sm:max-w-md">

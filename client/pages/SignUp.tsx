@@ -12,9 +12,8 @@ import { QrCode, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import api from "@/lib/api";
 import toast from "react-hot-toast";
-import { response } from "express";
-import { set } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
@@ -36,7 +35,7 @@ export default function SignUp() {
     e.preventDefault();
     setErrors({});
 
-    // ✅ 1. Run validation first
+    // Run validation first
     const newErrors: Record<string, string> = {};
 
     if (!formData.fullname.trim()) {
@@ -67,28 +66,19 @@ export default function SignUp() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return; // ⛔ prevent request if there are validation errors
+      return;
     }
 
-    // ✅ 2. If validation passed, now show spinner
+    // If validation passed, show spinner
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(
-        "https://backend-7hhj.onrender.com/api/users/register",
-        formData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        },
-      );
+      const response = await api.post("/users/register", formData);
 
       console.log(response.data);
 
       if (response.data.success) {
-        localStorage.setItem("otpUserId", response.data.userId); // ✅ Save userId here
+        localStorage.setItem("otpUserId", response.data.userId);
         toast.success("OTP sent! Please verify your email.");
         navigate("/verify-otp");
       } else {
@@ -114,7 +104,7 @@ export default function SignUp() {
       setErrors((prev) => ({ ...prev, backend: message }));
       toast.error("An error occurred during registration. Please try again later.");
     } finally {
-      // ✅ Always stop the spinner
+      // Always stop the spinner
       setIsSubmitting(false);
     }
   };

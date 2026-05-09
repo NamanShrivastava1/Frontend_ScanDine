@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
+import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,7 +15,7 @@ type MenuItem = {
   _id: string;
   dishName: string;
   description: string;
-  image?: string;
+  images?: { url: string; fileId: string; fileName: string }[];
   isChefSpecial?: boolean;
   isAvailable?: boolean;
   halfPrice?: number;
@@ -44,12 +45,8 @@ export default function MenuDisplay() {
     const fetchCafeAndMenu = async () => {
       try {
         const [cafesRes, menuRes] = await Promise.all([
-          axios.get(
-            "https://backend-7hhj.onrender.com/api/dashboard/public-cafes",
-          ),
-          axios.get(
-            `https://backend-7hhj.onrender.com/api/dashboard/public-menu/${cafeId}`,
-          ),
+          api.get("/cafe/public-cafes"),
+          api.get(`/menu/public/${cafeId}`),
         ]);
 
         const allCafes = cafesRes.data.cafes;
@@ -206,30 +203,34 @@ export default function MenuDisplay() {
                           </CardDescription>
 
                           {/* Availability badge */}
-                          {item.isAvailable ? (
+                          {!item.isAvailable ? (
                             <span className="text-[10px] mt-2 inline-flex items-center gap-1 text-white bg-red-500 py-1 px-2 rounded-md">
-                              ❌ Currently Unavailable
+                              Currently Unavailable
                             </span>
                           ) : (
                             <span className="text-[10px] mt-2 inline-flex items-center gap-1 text-white bg-green-500 py-1 px-2 rounded-md">
-                              ✅ Available
+                              Available
                             </span>
                           )}
 
                           {item.isChefSpecial && (
                             <span className="text-[10px] mt-2 ml-3 inline-flex items-center gap-1 text-white bg-yellow-500 py-1 px-2 rounded-md">
-                              🍽️ Chef's Special
+                              Chef's Special
                             </span>
                           )}
                         </div>
 
                         {/* Image */}
-                        <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
-                          <img
-                            src={`https://backend-7hhj.onrender.com/uploads/menu/${encodeURIComponent(category.category)}.jpg`}
-                            alt={item.dishName}
-                            className="w-full h-full object-cover"
-                          />
+                        <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
+                          {item.images && item.images.length > 0 ? (
+                            <img
+                              src={item.images[0].url}
+                              alt={item.dishName}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">No image</span>
+                          )}
                         </div>
                       </div>
                     </CardContent>

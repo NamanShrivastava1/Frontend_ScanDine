@@ -5,6 +5,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { QrCode, Search as SearchIcon, MapPin, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import api from "@/lib/api";
 
 export default function Search() {
   const [cafes, setCafes] = useState([]);
@@ -14,9 +15,7 @@ export default function Search() {
   useEffect(() => {
     const fetchCafes = async () => {
       try {
-        const response = await axios.get(
-          "https://backend-7hhj.onrender.com/api/dashboard/public-cafes",
-        );
+        const response = await api.get("/cafe/public-cafes");
         setCafes(response.data.cafes);
       } catch (error) {
         console.error("Failed to fetch cafes", error);
@@ -28,21 +27,7 @@ export default function Search() {
     fetchCafes();
   }, []);
 
-  const cafeImages = [
-    "/uploads/cafe1.jpg",
-    "/uploads/cafe2.jpg",
-    "/uploads/cafe3.jpg",
-    "/uploads/cafe4.jpg",
-    "/uploads/cafe5.jpg",
-  ];
 
-  function getImageForCafe(id: string) {
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash += id.charCodeAt(i);
-    }
-    return cafeImages[hash % cafeImages.length];
-  }
 
   const filteredCafes = cafes.filter((cafe) =>
     (cafe.cafename + " " + cafe.address)
@@ -133,11 +118,17 @@ export default function Search() {
                   <CardContent className="p-0">
                     <div className="flex gap-4 p-4">
                       <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
-                        <img
-                          src={getImageForCafe(cafe._id)}
-                          alt={cafe.cafename}
-                          className="w-full h-full object-cover"
-                        />
+                        {cafe.image ? (
+                          <img
+                            src={cafe.image}
+                            alt={cafe.cafename}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                            No Logo
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">

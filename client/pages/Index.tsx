@@ -21,6 +21,7 @@ import { useDarkMode } from "@/hooks/use-dark-mode";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "@/lib/api";
 
 export default function Index() {
   // Dark mode functionality
@@ -32,12 +33,7 @@ export default function Index() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get(
-          "https://backend-7hhj.onrender.com/api/users/me",
-          {
-            withCredentials: true,
-          },
-        );
+        const res = await api.get("/users/me");
         setIsLoggedIn(true);
       } catch (err) {
         setIsLoggedIn(false);
@@ -50,12 +46,7 @@ export default function Index() {
   }, []);
 
   const signOutHandler = async () => {
-    const response = await axios.get(
-      "https://backend-7hhj.onrender.com/api/users/logout",
-      {
-        withCredentials: true,
-      },
-    );
+    const response = await api.get("/users/logout");
 
     setIsLoggedIn(false);
     navigate("/signin");
