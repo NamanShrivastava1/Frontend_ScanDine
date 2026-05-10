@@ -497,7 +497,9 @@ export default function Dashboard() {
           }
           formData.append("image", logoFile);
         }
-        await api.put("/cafe/updateCafe", formData);
+        await api.put("/cafe/updateCafe", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
         toast.success("Cafe information updated successfully!");
       } else {
         const cafePayload = {
@@ -517,7 +519,9 @@ export default function Dashboard() {
           }
           const imgForm = new FormData();
           imgForm.append("image", logoFile);
-          await api.post("/cafe/upload-image", imgForm);
+          await api.post("/cafe/upload-image", imgForm, {
+            headers: { "Content-Type": "multipart/form-data" }
+          });
         }
         setIsCafeCreated(true);
         toast.success("Cafe information saved successfully!");
@@ -1084,17 +1088,38 @@ export default function Dashboard() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         {/* Item Info */}
                         <div className="flex items-center gap-4 flex-1">
-                          <div className="flex gap-2 overflow-x-auto max-w-[15rem] pb-2 snap-x hide-scrollbar">
+                          <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center relative border border-border">
                             {item.images && item.images.length > 0 ? (
-                              item.images.map((img, idx) => (
-                                <div key={img.fileId || idx} className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center snap-start border border-border">
-                                  <img
-                                    src={img.url}
-                                    alt={`${item.dishName} - ${idx + 1}`}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                              ))
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <div className="w-full h-full relative cursor-pointer group">
+                                    <img
+                                      src={item.images[0].url}
+                                      alt={item.dishName}
+                                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                    />
+                                    {item.images.length > 1 && (
+                                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center transition-colors group-hover:bg-black/60">
+                                        <span className="text-white font-bold text-sm">+{item.images.length - 1}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+                                  <DialogTitle className="text-2xl font-bold mb-4">{item.dishName} Photos</DialogTitle>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {item.images.map((img, idx) => (
+                                      <div key={img.fileId || idx} className="rounded-xl overflow-hidden border border-border shadow-sm">
+                                        <img
+                                          src={img.url}
+                                          alt={`${item.dishName} - ${idx + 1}`}
+                                          className="w-full h-auto object-contain bg-muted/30"
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
                             ) : (
                               <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center border border-border">
                                 <span className="text-xs text-muted-foreground text-center px-1">No image</span>
