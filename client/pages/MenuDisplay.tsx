@@ -221,15 +221,21 @@ export default function MenuDisplay() {
                         </div>
 
                         {/* Image */}
-                        <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
+                        <div className="flex gap-2 overflow-x-auto max-w-[15rem] pb-2 snap-x hide-scrollbar">
                           {item.images && item.images.length > 0 ? (
-                            <img
-                              src={item.images[0].url}
-                              alt={item.dishName}
-                              className="w-full h-full object-cover"
-                            />
+                            item.images.map((img, idx) => (
+                              <div key={img.fileId || idx} className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center snap-start border border-border">
+                                <img
+                                  src={img.url}
+                                  alt={`${item.dishName} - ${idx + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))
                           ) : (
-                            <span className="text-xs text-muted-foreground">No image</span>
+                            <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center border border-border">
+                              <span className="text-xs text-muted-foreground text-center px-1">No image</span>
+                            </div>
                           )}
                         </div>
                       </div>

@@ -138,6 +138,7 @@ export default function Dashboard() {
     image: "",
   });
 
+  const [isCafeCreated, setIsCafeCreated] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [menuImages, setMenuImages] = useState<File[]>([]);
   const [editMenuImages, setEditMenuImages] = useState<File[]>([]);
@@ -483,29 +484,44 @@ export default function Dashboard() {
 
   const cafeInfoHandler = async () => {
     try {
-      const cafePayload = {
-        cafename: cafeinfo.cafename,
-        phoneNo: cafeinfo.phoneNo,
-        address: cafeinfo.address,
-        description: cafeinfo.description,
-      };
-
-      await api.post("/cafe/createCafe", cafePayload);
-
-      // Upload image separately if selected
-      if (logoFile) {
-        if (logoFile.size > 5 * 1024 * 1024) {
-          toast.error("Image must be smaller than 5MB");
-          return;
+      if (isCafeCreated) {
+        const formData = new FormData();
+        if (cafeinfo.cafename) formData.append("cafename", cafeinfo.cafename);
+        if (cafeinfo.phoneNo) formData.append("phoneNo", cafeinfo.phoneNo);
+        if (cafeinfo.address) formData.append("address", cafeinfo.address);
+        if (cafeinfo.description) formData.append("description", cafeinfo.description);
+        if (logoFile) {
+          if (logoFile.size > 5 * 1024 * 1024) {
+            toast.error("Image must be smaller than 5MB");
+            return;
+          }
+          formData.append("image", logoFile);
         }
-        const imgForm = new FormData();
-        imgForm.append("image", logoFile);
-        await api.post("/cafe/upload-image", imgForm, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-      }
+        await api.put("/cafe/updateCafe", formData);
+        toast.success("Cafe information updated successfully!");
+      } else {
+        const cafePayload = {
+          cafename: cafeinfo.cafename,
+          phoneNo: cafeinfo.phoneNo,
+          address: cafeinfo.address,
+          description: cafeinfo.description,
+        };
 
-      toast.success("Cafe information saved successfully!");
+        await api.post("/cafe/createCafe", cafePayload);
+
+        // Upload image separately if selected
+        if (logoFile) {
+          if (logoFile.size > 5 * 1024 * 1024) {
+            toast.error("Image must be smaller than 5MB");
+            return;
+          }
+          const imgForm = new FormData();
+          imgForm.append("image", logoFile);
+          await api.post("/cafe/upload-image", imgForm);
+        }
+        setIsCafeCreated(true);
+        toast.success("Cafe information saved successfully!");
+      }
     } catch (error: any) {
       console.error("Error saving cafe:", error.response?.data || error.message);
       toast.error(error.response?.data?.message || "Failed to save cafe information");
@@ -547,6 +563,8 @@ export default function Dashboard() {
         const res = await api.get("/cafe/showCafe");
 
         const { cafename, phoneNo, address, description, image } = res.data.cafe;
+
+        setIsCafeCreated(true);
 
         setCafeinfo({
           cafename: cafename || "Cafe Placeholder",
@@ -834,7 +852,7 @@ export default function Dashboard() {
                     onClick={cafeInfoHandler}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
-                    Save Changes
+                    {isCafeCreated ? "Update Cafe Information" : "Save Cafe Information"}
                   </Button>
                   <Button
                     asChild
@@ -1066,15 +1084,21 @@ export default function Dashboard() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         {/* Item Info */}
                         <div className="flex items-center gap-4 flex-1">
-                          <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
+                          <div className="flex gap-2 overflow-x-auto max-w-[15rem] pb-2 snap-x hide-scrollbar">
                             {item.images && item.images.length > 0 ? (
-                              <img
-                                src={item.images[0].url}
-                                alt={item.dishName}
-                                className="w-full h-full object-cover"
-                              />
+                              item.images.map((img, idx) => (
+                                <div key={img.fileId || idx} className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center snap-start border border-border">
+                                  <img
+                                    src={img.url}
+                                    alt={`${item.dishName} - ${idx + 1}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ))
                             ) : (
-                              <span className="text-xs text-muted-foreground">No image</span>
+                              <div className="w-20 h-20 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center border border-border">
+                                <span className="text-xs text-muted-foreground text-center px-1">No image</span>
+                              </div>
                             )}
                           </div>
                           <div>
