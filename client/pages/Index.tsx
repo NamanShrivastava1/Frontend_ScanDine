@@ -46,7 +46,7 @@ export default function Index() {
   }, []);
 
   const signOutHandler = async () => {
-    const response = await api.get("/users/logout");
+    const response = await api.post("/users/logout");
 
     setIsLoggedIn(false);
     navigate("/signin");
