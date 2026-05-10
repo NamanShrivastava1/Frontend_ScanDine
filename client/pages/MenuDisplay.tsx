@@ -25,6 +25,7 @@ type MenuItem = {
   isAvailable?: boolean;
   halfPrice?: number;
   fullPrice?: number;
+  category?: string;
 };
 
 type MenuCategory = {
@@ -52,14 +53,31 @@ export default function MenuDisplay() {
       try {
         const [cafesRes, menuRes] = await Promise.all([
           api.get("/cafe/public-cafes"),
-          api.get(`/menu/public/${cafeId}`),
+          api.get(`/menu/${cafeId}`),
         ]);
 
         const allCafes = cafesRes.data.cafes;
         const selectedCafe = allCafes.find((cafe: Cafe) => cafe._id === cafeId);
-
         setCafeData(selectedCafe || null);
-        setMenuCategories(menuRes.data.categories || []);
+
+        // Manually group the items by category to bypass the backend select bug on Render
+        const rawMenuItems: MenuItem[] = menuRes.data.menuItems || [];
+        const availableItems = rawMenuItems.filter(item => item.isAvailable);
+        
+        const categoriesMap: Record<string, MenuItem[]> = {};
+        for (const item of availableItems) {
+          if (!categoriesMap[item.category!]) {
+            categoriesMap[item.category!] = [];
+          }
+          categoriesMap[item.category!].push(item);
+        }
+        
+        const categories = Object.entries(categoriesMap).map(([category, items]) => ({
+          category,
+          items,
+        }));
+
+        setMenuCategories(categories);
       } catch (error) {
         console.error("Failed to fetch data:", error);
         setMenuCategories([]);
