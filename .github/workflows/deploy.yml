@@ -35,13 +35,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload to S3
-  run: |
-    aws s3 sync dist/spa/ s3://scandine-frontend \
-      --delete \
-      --cache-control max-age=31536000
+        run: aws s3 sync dist/ s3://scandine-frontend --delete --cache-control max-age=31536000
 
       - name: Invalidate CloudFront cache
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
