@@ -8,16 +8,17 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+
+    /* Interop */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
 
-    /* Linting */
+    /* Relaxed checking */
     "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
@@ -25,19 +26,16 @@
     "noFallthroughCasesInSwitch": false,
     "strictNullChecks": false,
 
-    /* Path mapping */
-    "baseUrl": ".",
+    /* Path aliases */
     "paths": {
       "@/*": ["./client/*"],
       "@shared/*": ["./shared/*"]
-    }
+    },
+
+    "ignoreDeprecations": "6.0"
   },
-  "include": [
-    "client/**/*",
-    "server/**/*",
-    "shared/**/*",
-    "vite.config.ts",
-    "vite.config.server.ts"
-  ],
+
+  "include": ["client/**/*", "shared/**/*", "vite.config.ts"],
+
   "exclude": ["node_modules", "dist"]
 }
