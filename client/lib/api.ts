@@ -1,9 +1,12 @@
 import axios from "axios";
 
 // Determine the base URL.
-// If VITE_API_BASE_URL is provided, use it.
-// Otherwise, fallback to the Render production API URL.
-const baseURL = import.meta.env.VITE_API_BASE_URL || "https://backend-7hhj.onrender.com/api/v1";
+// If VITE_API_BASE_URL is provided, use it. Otherwise, throw an error to prevent misconfiguration.
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+if (!baseURL) {
+  throw new Error("VITE_API_BASE_URL is not defined");
+}
 
 const api = axios.create({
   baseURL,
